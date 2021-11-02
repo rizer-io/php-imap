@@ -503,9 +503,10 @@ class Message {
      */
     public function peek(){
         if ($this->fetch_options == IMAP::FT_PEEK) {
-            if ($this->getFlags()->get("seen") == null) {
-                $this->unsetFlag("Seen");
-            }
+            // It makes no sense to flag all emails as unread because the seen flag isn't present => slow down the process from 20 s to 1m30s for 132 emails..
+//            if ($this->getFlags()->get("seen") == null) {
+//                $this->unsetFlag("Seen");
+//            }
         }elseif ($this->getFlags()->get("seen") != null) {
             $this->setFlag("Seen");
         }
@@ -1372,7 +1373,9 @@ class Message {
      */
     public function setUid(int $uid): Message {
         $this->uid = $uid;
-        $this->msgn = $this->client->getConnection()->getMessageNumber($this->uid);
+        $this->msgn = null;
+        // The following "setter" implies an extra IMAP call for each fetched email which significantly slows down the whole process
+        // $this->msgn = $this->client->getConnection()->getMessageNumber($this->uid);
         $this->msglist = null;
 
         return $this;

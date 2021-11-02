@@ -587,6 +587,8 @@ class ImapProtocol extends Protocol {
         $items = (array)$items;
         $itemList = $this->escapeList($items);
 
+        $itemZeroWithoutPeek = str_replace('.PEEK', '', $items[0]);
+
         $this->sendRequest($this->buildUIDCommand("FETCH", $uid), [$set, $itemList], $tag);
         $result = [];
         $tokens = null; // define $tokens variable before first use
@@ -620,9 +622,9 @@ class ImapProtocol extends Protocol {
 
             // if we only want one item we return that one directly
             if (count($items) == 1) {
-                if ($tokens[2][0] == $items[0]) {
+                if ($tokens[2][0] == $itemZeroWithoutPeek) {
                     $data = $tokens[2][1];
-                } elseif ($uid && $tokens[2][2] == $items[0]) {
+                } elseif ($uid && $tokens[2][2] == $itemZeroWithoutPeek) {
                     $data = $tokens[2][3];
                 } else {
                     $expectedResponse = 0;
@@ -630,7 +632,7 @@ class ImapProtocol extends Protocol {
                     $count = count($tokens[2]);
                     // we start with 2, because 0 was already checked
                     for ($i = 2; $i < $count; $i += 2) {
-                        if ($tokens[2][$i] != $items[0]) {
+                        if ($tokens[2][$i] != $itemZeroWithoutPeek) {
                             continue;
                         }
                         $data = $tokens[2][$i + 1];
@@ -681,7 +683,8 @@ class ImapProtocol extends Protocol {
      * @throws RuntimeException
      */
     public function content($uids, string $rfc = "RFC822", $uid = IMAP::ST_UID): array {
-        $result = $this->fetch(["$rfc.TEXT"], $uids, null, $uid);
+        // Usage of Peek allow to keep email read state untouched
+        $result = $this->fetch(["BODY.PEEK[TEXT]"], $uids, null, $uid);
         return is_array($result) ? $result : [];
     }
 
@@ -696,7 +699,8 @@ class ImapProtocol extends Protocol {
      * @throws RuntimeException
      */
     public function headers($uids, string $rfc = "RFC822", $uid = IMAP::ST_UID): array{
-        $result = $this->fetch(["$rfc.HEADER"], $uids, null, $uid);
+        // Usage of Peek allow to keep email read state untouched
+        $result = $this->fetch(["BODY.PEEK[HEADER]"], $uids, null, $uid);
         return $result === "" ? [] : $result;
     }
 

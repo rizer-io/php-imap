@@ -475,7 +475,7 @@ class Header {
                 }
             } elseif ($decoder === 'iconv' && $is_utf8_base) {
                 $value = iconv_mime_decode($value);
-            } elseif ($is_utf8_base) {
+            } else {
                 $value = mb_decode_mimeheader($value);
             }
 
