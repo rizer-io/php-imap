@@ -71,6 +71,11 @@ class Folder {
     public $delimiter;
 
     /**
+     * @var array
+     */
+    public $attributes = [];
+
+    /**
      * Indicates if folder can't containg any "children".
      * CreateFolder won't work on this folder.
      *
@@ -113,6 +118,14 @@ class Folder {
     public $status;
 
     /**
+     * List of special use attributes defined for this folder
+     * https://datatracker.ietf.org/doc/html/rfc6154
+     *
+     * @var array
+     */
+    public $special_use_attributes;
+
+    /**
      * Folder constructor.
      * @param Client $client
      * @param string $folder_name
@@ -129,8 +142,10 @@ class Folder {
         $this->path      = $folder_name;
         $this->full_name  = $this->decodeName($folder_name);
         $this->name      = $this->getSimpleName($this->delimiter, $this->full_name);
+        $this->attributes = $attributes;
 
-        $this->parseAttributes($attributes);
+        $this->parseAttributes();
+        $this->parseSpecialUseAttributes();
     }
 
     /**
@@ -220,7 +235,6 @@ class Folder {
 
     /**
      * Parse attributes and set it to object properties.
-     * @param $attributes
      */
     protected function parseAttributes($attributes) {
         $this->no_inferiors = in_array('\NoInferiors', $attributes);
@@ -228,6 +242,21 @@ class Folder {
         $this->marked       = in_array('\Marked', $attributes);
         $this->referral     = in_array('\Referral', $attributes);
         $this->has_children = in_array('\HasChildren', $attributes);
+    }
+
+    protected function parseSpecialUseAttributes() {
+        $this->special_use_attributes = array_intersect(
+            [
+                '\All',
+                '\Archive',
+                '\Drafts',
+                '\Flagged',
+                '\Junk',
+                '\Sent',
+                '\Trash',
+            ],
+            $this->attributes
+        );
     }
 
     /**
