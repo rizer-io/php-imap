@@ -237,7 +237,11 @@ class Query {
         if (empty($extensions) === false && method_exists($this->client->getConnection(), "fetch")) {
             $extensions = $this->client->getConnection()->fetch($extensions, $uids, null, $this->sequence)->validatedData();
         }
-        $flags = $this->client->getConnection()->flags($uids, $this->sequence)->validatedData();
+
+        $flags =[];
+        if($this->getFetchFlags()) { // TODOLN still ?
+            $flags = $this->client->getConnection()->flags($uids, $this->sequence)->validatedData();
+        }
         $headers = $this->client->getConnection()->headers($uids, "RFC822", $this->sequence)->validatedData();
 
         $contents = [];
