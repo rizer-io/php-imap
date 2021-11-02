@@ -155,7 +155,7 @@ class Folder {
         $this->children = new FolderCollection();
         $this->has_children = false;
 
-        $this->parseAttributes();
+        $this->parseAttributes($attributes);
         $this->parseSpecialUseAttributes();
     }
 
@@ -271,6 +271,7 @@ class Folder {
 
     /**
      * Parse attributes and set it to object properties.
+     * @param $attributes
      */
     protected function parseAttributes($attributes): void {
         $this->no_inferiors = in_array('\NoInferiors', $attributes, true) || \in_array('\Noinferiors', $attributes, true);

@@ -241,7 +241,11 @@ class Query {
             // this polymorphic call is fine - the method exists at this point
             $extensions = $this->client->getConnection()->fetch($extensions, $uids, null, $this->sequence)->validatedData();
         }
-        $flags = $this->client->getConnection()->flags($uids, $this->sequence)->validatedData();
+
+        $flags =[];
+        if($this->getFetchFlags()) { // TODOLN still ?
+            $flags = $this->client->getConnection()->flags($uids, $this->sequence)->validatedData();
+        }
         $headers = $this->client->getConnection()->headers($uids, "RFC822", $this->sequence)->validatedData();
 
         $contents = [];

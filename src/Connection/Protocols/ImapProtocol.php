@@ -779,6 +779,8 @@ class ImapProtocol extends Protocol {
         $items = (array)$items;
         $itemList = $this->escapeList($items);
 
+        $itemZeroWithoutPeek = str_replace('.PEEK', '', $items[0]);
+
         $response = $this->sendRequest($this->buildUIDCommand("FETCH", $uid), [$set, $itemList], $tag);
         $result = [];
         $tokens = []; // define $tokens variable before first use
@@ -815,9 +817,9 @@ class ImapProtocol extends Protocol {
 
             // if we only want one item we return that one directly
             if (count($items) == 1) {
-                if ($tokens[2][0] == $items[0]) {
+                if ($tokens[2][0] == $itemZeroWithoutPeek) {
                     $data = $tokens[2][1];
-                } elseif ($uid === IMAP::ST_UID && $tokens[2][2] == $items[0]) {
+                } elseif ($uid === IMAP::ST_UID && $tokens[2][2] == $itemZeroWithoutPeek) {
                     $data = $tokens[2][3];
                 } else {
                     $expectedResponse = 0;
@@ -825,7 +827,7 @@ class ImapProtocol extends Protocol {
                     $count = count($tokens[2]);
                     // we start with 2, because 0 was already checked
                     for ($i = 2; $i < $count; $i += 2) {
-                        if ($tokens[2][$i] != $items[0]) {
+                        if ($tokens[2][$i] != $itemZeroWithoutPeek) {
                             continue;
                         }
                         $data = $tokens[2][$i + 1];
@@ -877,6 +879,7 @@ class ImapProtocol extends Protocol {
         $rfc = $rfc ?? "RFC822";
         $item = $rfc === "BODY" ? "BODY[TEXT]" : "$rfc.TEXT";
         return $this->fetch([$item], is_array($uids) ? $uids : [$uids], null, $uid);
+//        return $this->fetch(["$rfc.TEXT"], $uids, null, $uid); // TODOLN previously working version
     }
 
     /**
@@ -891,6 +894,7 @@ class ImapProtocol extends Protocol {
      */
     public function headers(int|array $uids, string $rfc = "RFC822", int|string $uid = IMAP::ST_UID): Response {
         return $this->fetch(["$rfc.HEADER"], is_array($uids) ? $uids : [$uids], null, $uid);
+//        return $this->fetch(["$rfc.HEADER"], $uids, null, $uid); // TODOLN previously working version
     }
 
     /**
