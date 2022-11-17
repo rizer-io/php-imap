@@ -114,10 +114,10 @@ class ImapProtocol extends Protocol {
      */
     public function nextLine(Response $response): string {
         $line = "";
-        while (($next_char = fread($this->stream, 1)) !== false && !in_array($next_char, ["","\n"])) {
+        while (($next_char = fread($this->stream, 1)) !== false && !in_array($next_char, ["","\n"]) && !feof($this->stream)) {
             $line .= $next_char;
         }
-        if ($line === "" && ($next_char === false || $next_char === "")) {
+        if ($line === "" && ($next_char === false || $next_char === "" || feof($this->stream))) {
             throw new RuntimeException('empty response');
         }
         $line .= "\n";
@@ -732,9 +732,8 @@ class ImapProtocol extends Protocol {
      * @throws RuntimeException
      */
     public function content(int|array $uids, string $rfc = "RFC822", int|string $uid = IMAP::ST_UID): Response {
-        // Usage of Peek allow to keep email read state untouched TODOLN
-//        return $this->fetch(["BODY.PEEK[TEXT]"], $uids, null, $uid);
-        return $this->fetch(["$rfc.TEXT"], $uids, null, $uid);
+        // Usage of Peek allow to keep email read state untouched
+        return $this->fetch(["BODY.PEEK[TEXT]"], $uids, null, $uid);
     }
 
     /**
@@ -748,9 +747,8 @@ class ImapProtocol extends Protocol {
      * @throws RuntimeException
      */
     public function headers(int|array $uids, string $rfc = "RFC822", int|string $uid = IMAP::ST_UID): Response {
-        // Usage of Peek allow to keep email read state untouched TODOLN
-//        return $this->fetch(["BODY.PEEK[HEADER]"], $uids, null, $uid);
-        return $this->fetch(["$rfc.HEADER"], $uids, null, $uid);
+        // Usage of Peek allow to keep email read state untouched
+        return $this->fetch(["BODY.PEEK[HEADER]"], $uids, null, $uid);
     }
 
     /**

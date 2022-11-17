@@ -662,7 +662,6 @@ class Message {
     public function peek(): void {
         if ($this->fetch_options == IMAP::FT_PEEK) {
             // It makes no sense to flag all emails as unread because the seen flag isn't present => slow down the process from 20 s to 1m30s for 132 emails..
-// TODOLN still true ?
 //            if ($this->getFlags()->get("seen") == null) {
 //                $this->unsetFlag("Seen");
 //            }
