@@ -243,7 +243,7 @@ class Query {
         }
 
         $flags =[];
-        if($this->getFetchFlags()) { // TODOLN still ?
+        if($this->getFetchFlags()) {
             $flags = $this->client->getConnection()->flags($uids, $this->sequence)->validatedData();
         }
         $headers = $this->client->getConnection()->headers($uids, "RFC822", $this->sequence)->validatedData();

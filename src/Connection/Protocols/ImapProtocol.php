@@ -879,7 +879,8 @@ class ImapProtocol extends Protocol {
         $rfc = $rfc ?? "RFC822";
         $item = $rfc === "BODY" ? "BODY[TEXT]" : "$rfc.TEXT";
         return $this->fetch([$item], is_array($uids) ? $uids : [$uids], null, $uid);
-//        return $this->fetch(["$rfc.TEXT"], $uids, null, $uid); // TODOLN previously working version
+        // Usage of Peek allow to keep email read state untouched
+        //return $this->fetch(["BODY.PEEK[TEXT]"], $uids, null, $uid); // TODOLN previously working version
     }
 
     /**
@@ -894,7 +895,8 @@ class ImapProtocol extends Protocol {
      */
     public function headers(int|array $uids, string $rfc = "RFC822", int|string $uid = IMAP::ST_UID): Response {
         return $this->fetch(["$rfc.HEADER"], is_array($uids) ? $uids : [$uids], null, $uid);
-//        return $this->fetch(["$rfc.HEADER"], $uids, null, $uid); // TODOLN previously working version
+        // Usage of Peek allow to keep email read state untouched
+//        return $this->fetch(["BODY.PEEK[HEADER]"], $uids, null, $uid); // TODOLN previously working version
     }
 
     /**
