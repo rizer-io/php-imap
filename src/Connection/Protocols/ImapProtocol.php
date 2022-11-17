@@ -105,10 +105,13 @@ class ImapProtocol extends Protocol {
      */
     public function nextLine(): string {
         $line = "";
-        while (($next_char = fread($this->stream, 1)) !== false && $next_char !== "\n") {
+        while (($next_char = fread($this->stream, 1)) !== false && $next_char !== "\n" && !feof($this->stream)) {
             $line .= $next_char;
         }
-        if ($line === "" && $next_char === false) {
+        if (
+            $line === "" &&
+            ($next_char === false || feof($this->stream))
+        ) {
             throw new RuntimeException('empty response');
         }
         if ($this->debug) echo "<< ".$line."\n";
